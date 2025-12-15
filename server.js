@@ -1,23 +1,26 @@
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 dotenv.config();
-const express = require('express');
+const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
-const cors = require('cors');
-const logger = require('morgan');
+const mongoose = require("mongoose");
+const cors = require("cors");
+const logger = require("morgan");
 
 mongoose.connect(process.env.MONGODB_URI);
 
-mongoose.connection.on('connected', () => {
+mongoose.connection.on("connected", () => {
   console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
 });
 
 app.use(cors());
 app.use(express.json());
-app.use(logger('dev'));
+app.use(logger("dev"));
 
 // Routes go here
+const createController = require("./controllers/CreateController");
+
+app.use("/moods", createController);
 
 app.listen(3000, () => {
-  console.log('The express app is ready!');
+  console.log("The express app is ready!");
 });
