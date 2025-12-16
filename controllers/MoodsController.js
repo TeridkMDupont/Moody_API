@@ -27,4 +27,26 @@ router.post("/", async (req, res) => {
   }
 });
 
+//GET /moods - display all moods logs
+router.get("/", async (req, res) => {
+  try {
+    const findAllMoods = await Mood.find({})
+    .populate("author")
+    .sort({ createdAt: "desc" });
+  res.status(200).json(findAllMoods);
+  } catch(err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
+//GET /moods/:moodId - display a single mood log
+router.get("/:moodId", async (req, res) => {
+  try {
+    const findOneMood = await Mood.findById(req.params.moodId).populate("author");
+    res.status(200).json(findOneMood);
+  } catch(err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
 module.exports = router;
