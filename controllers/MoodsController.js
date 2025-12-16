@@ -1,0 +1,52 @@
+const express = require("express");
+const Mood = require("../models/Mood");
+const router = express.Router();
+const { isAuthenticated } = require("../middleware/auth");
+
+// All routes in this file are protected and require a valid token
+router.use(isAuthenticated);
+
+// POST /moods - Create a new mood entry
+router.post("/", async (req, res) => {
+  try {
+    const newMood = await Mood.create({
+      ...req.body,
+      author: req.user._id, // Associate the mood with the logged-in user
+    });
+    res.status(201).json(newMood);
+  } catch (error) {
+    // Mongoose validation error
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({ error: messages.join(". ") });
+    }
+
+    // Other server errors
+    console.error(error);
+    res.status(500).json({ error: "Failed to create mood entry." });
+  }
+});
+
+//GET /moods - display all moods logs
+router.get("/", async (req, res) => {
+  try {
+    const findAllMoods = await Mood.find({})
+    .populate("author")
+    .sort({ createdAt: "desc" });
+  res.status(200).json(findAllMoods);
+  } catch(err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
+//GET /moods/:moodId - display a single mood log
+router.get("/:moodId", async (req, res) => {
+  try {
+    const findOneMood = await Mood.findById(req.params.moodId).populate("author");
+    res.status(200).json(findOneMood);
+  } catch(err) {
+    res.status(500).json({ err: err.message });
+  }
+});
+
+module.exports = router;
