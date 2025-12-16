@@ -27,4 +27,16 @@ router.post("/", async (req, res) => {
   }
 });
 
+//GET /moods - display all moods 
+router.get("/", async (req, res) => {
+  try {
+    const findAllMoods = await Mood.find({})
+    .populate("author")
+    .sort({ createdAt: "desc" });
+  res.status(200).json(findAllMoods);
+  } catch(err) {
+    res.status(500).json({ err: err.message });
+  }
+})
+
 module.exports = router;
